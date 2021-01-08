@@ -1,5 +1,6 @@
 // react modules
-import {useState} from 'react';
+import React, {useState} from 'react';
+
 
 // config
 import config from '../../environment';
@@ -62,12 +63,14 @@ const Cockpit = () => {
       triggerSearch={() => triggerSearchHandler(queryState.inputQuery)}/>
       { isLoadingState.isLoading ? 
       <Loader/>
-      : <Users users={usersState.users}/> }
+      : <React.Fragment>
+      <Users users={usersState.users}/>
       <Pagination 
-        currentPage={currentPageState.currentPage} 
-        resultsCount={resultsCountState.count} 
-        nextClicked={getNextResults}
-        backClicked={getLastResults} />
+      currentPage={currentPageState.currentPage} 
+      resultsCount={resultsCountState.count} 
+      nextClicked={getNextResults}
+      backClicked={getLastResults} /> </React.Fragment> }
+     
     </div>
   )
 }
