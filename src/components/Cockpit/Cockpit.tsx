@@ -56,7 +56,7 @@ const Cockpit = () => {
     triggerSearchHandler(queryState.lastTriggeredQuery, currentPageState.currentPage - 1)
   }
   return (
-    <div>
+    <React.Fragment>
       <Searchbar 
       value={queryState.inputQuery} 
       setQuery={setQuery} 
@@ -74,7 +74,7 @@ const Cockpit = () => {
           </React.Fragment> 
       }
      
-    </div>
+    </React.Fragment>
   )
 }
 
