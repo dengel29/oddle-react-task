@@ -10,7 +10,6 @@ type UserProps = {
 
 const UserContainer = styled.div`
   text-align:left;
-  margin: 16px auto;
   border: 1px solid #eee;
   box-shadow: 0 2px 3px #ccc;
   text-align: center;
@@ -36,11 +35,19 @@ const UserContainer = styled.div`
   }
 `
 
+const NameContainer = styled.div`
+  overflow-wrap: anywhere;;
+  max-width:24ch;
+  padding: 0em 0.6em 0em 0.6em
+`
+
 const User = (props: UserProps) => {
   return(
     <UserContainer>
       <img src={props.avatar_url} alt=""/>
-      <h3>{props.login}</h3>
+      <NameContainer>
+        <h3>{props.login}</h3>
+      </NameContainer>
     </UserContainer>
   )
 }

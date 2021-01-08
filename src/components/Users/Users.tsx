@@ -14,8 +14,9 @@ type UsersProps = {
 }
 
 let UsersListContainer = styled.div`
+  margin-top:1.6em;
   display:grid;
-  grid-template-columns: minmax(12em, max-content) repeat(auto-fill, 10em);
+  grid-template-columns: minmax(min-content, 12em) repeat(auto-fill, 10em);
   grid-gap: 0.8em 0.8em;
   padding: 0em 0.8em 0em 0.8em
 `
