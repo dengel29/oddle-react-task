@@ -1,7 +1,13 @@
+// react modules
 import {useState} from 'react';
+
+// config
+import config from '../../environment';
+
+// components here
 import Searchbar from '../Searchbar/Searchbar';
 import Users from '../Users/Users';
-import config from '../../environment';
+import Loader from '../Loader/Loader'
 
 
 const Cockpit = () => {
@@ -41,7 +47,9 @@ const Cockpit = () => {
       value={queryState.inputQuery} 
       setQuery={setQuery} 
       triggerSearch={() => triggerSearchHandler(queryState.inputQuery)}/>
-      <Users users={usersState.users}/>
+      { isLoadingState.isLoading ? 
+      <Loader/>
+      : <Users users={usersState.users}/> }
     </div>
   )
 }
