@@ -1,6 +1,9 @@
 import {useState} from 'react';
-import Searchbar from '../Searchbar/Searchbar'
-import config from '../../environment'
+import Searchbar from '../Searchbar/Searchbar';
+import Users from '../Users/Users';
+import config from '../../environment';
+
+
 const Cockpit = () => {
   
   // local state
@@ -33,10 +36,13 @@ const Cockpit = () => {
     setIsLoadingState({isLoading: false})
   }
   return (
-    <Searchbar 
-    value={queryState.inputQuery} 
-    setQuery={setQuery} 
-    triggerSearch={() => triggerSearchHandler(queryState.inputQuery)}/>
+    <div>
+      <Searchbar 
+      value={queryState.inputQuery} 
+      setQuery={setQuery} 
+      triggerSearch={() => triggerSearchHandler(queryState.inputQuery)}/>
+      <Users users={usersState.users}/>
+    </div>
   )
 }
 
