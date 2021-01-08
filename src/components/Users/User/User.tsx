@@ -17,12 +17,13 @@ const UserContainer = styled.div`
   border-radius: 4px;
   background-color: #483d8b2e;
   height:min-content;
+  max-height:14em;
 
   img {
-    height: 90%;
     width:100%;
     box-shadow: 1px 3px 3px darkslateblue;
     object-fit:cover;
+    height:10em;
   }
 
   h3 {
