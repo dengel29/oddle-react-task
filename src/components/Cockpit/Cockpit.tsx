@@ -1,7 +1,6 @@
 // react modules
 import React, {useState} from 'react';
 
-
 // config
 import config from '../../environment';
 
@@ -10,6 +9,7 @@ import Searchbar from '../Searchbar/Searchbar';
 import Users from '../Users/Users';
 import Loader from '../Loader/Loader'
 import Pagination from '../Pagination/Pagination'
+import UserProfile from '../UserProfile/UserProfile'
 
 
 const Cockpit = () => {
@@ -73,7 +73,6 @@ const Cockpit = () => {
             backClicked={getLastResults} /> 
           </React.Fragment> 
       }
-     
     </React.Fragment>
   )
 }

@@ -5,7 +5,8 @@ type UserProps = {
   id:number,
   repos_url: string,
   avatar_url: string,
-  gravatar_url?: string
+  gravatar_url?: string,
+  selected: React.MouseEventHandler
 }
 
 const UserContainer = styled.div`
