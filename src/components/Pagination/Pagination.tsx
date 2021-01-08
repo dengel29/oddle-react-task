@@ -45,7 +45,9 @@ const Pagination = (props: PaginationProps) => {
       <HorizontalSpacingDiv >
       { props.currentPage === 0 ? null :
         <React.Fragment>
-          <PaginationButton direction="back" onClick={props.backClicked}>Back</PaginationButton>
+          { props.currentPage === 1 ? <div></div> :
+            <PaginationButton direction="back" onClick={props.backClicked}>Back</PaginationButton>
+          }
           <p>{props.currentPage}</p>
           <PaginationButton direction="next" onClick={props.nextClicked}>Next</PaginationButton>
         </React.Fragment>
