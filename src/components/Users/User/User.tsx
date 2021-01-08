@@ -1,3 +1,5 @@
+import styled from 'styled-components';
+
 type UserProps = {
   login: string,
   id:number,
@@ -6,14 +8,39 @@ type UserProps = {
   gravatar_url?: string
 }
 
+const UserContainer = styled.div`
+  text-align:left;
+  margin: 16px auto;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 3px #ccc;
+  text-align: center;
+  border-radius: 4px;
+  background-color: #483d8b2e;
+  height:min-content;
+
+  img {
+    height: 90%;
+    width:100%;
+    box-shadow: 1px 3px 3px darkslateblue;
+    object-fit:cover;
+  }
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  a {
+
+  }
+`
+
 const User = (props: UserProps) => {
   return(
-    <div>
+    <UserContainer>
       <img src={props.avatar_url} alt=""/>
-      <p>User: {props.login}!</p>
-      <a href={props.repos_url}>Repos</a>
-      
-    </div>
+      <h3>{props.login}</h3>
+    </UserContainer>
   )
 }
 

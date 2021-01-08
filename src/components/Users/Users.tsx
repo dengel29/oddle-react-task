@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import React from 'react';
 import User from './User/User'
 
@@ -12,9 +13,15 @@ type UsersProps = {
   users:UserType[]
 }
 
+let UsersListContainer = styled.div`
+  display:grid;
+  grid-template-columns: minmax(5em, max-content) repeat(auto-fill, 10em);
+  grid-gap: 4px 4px
+`
+
 const Users = (props: UsersProps) => {
 
-  return <div> {
+  return <UsersListContainer> {
     props.users.map( (user, id) => {
       return (
         <User
@@ -28,7 +35,7 @@ const Users = (props: UsersProps) => {
       )
     })
     
-  }</div>
+  }</UsersListContainer>
 }
 
 export default Users;
