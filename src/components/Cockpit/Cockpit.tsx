@@ -61,15 +61,18 @@ const Cockpit = () => {
       value={queryState.inputQuery} 
       setQuery={setQuery} 
       triggerSearch={() => triggerSearchHandler(queryState.inputQuery)}/>
-      { isLoadingState.isLoading ? 
-      <Loader/>
-      : <React.Fragment>
-      <Users users={usersState.users}/>
-      <Pagination 
-      currentPage={currentPageState.currentPage} 
-      resultsCount={resultsCountState.count} 
-      nextClicked={getNextResults}
-      backClicked={getLastResults} /> </React.Fragment> }
+      { isLoadingState.isLoading 
+        ? 
+          <Loader/>
+        : <React.Fragment>
+            <Users users={usersState.users}/>
+            <Pagination 
+            currentPage={currentPageState.currentPage} 
+            resultsCount={resultsCountState.count} 
+            nextClicked={getNextResults}
+            backClicked={getLastResults} /> 
+          </React.Fragment> 
+      }
      
     </div>
   )
