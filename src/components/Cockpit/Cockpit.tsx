@@ -1,15 +1,18 @@
 // react modules
 import React, {useState} from 'react';
 
-// config
-import config from '../../environment';
-
 // components 
 import Searchbar from '../Searchbar/Searchbar';
 import Users from '../Users/Users';
 import Loader from '../Loader/Loader'
 import Pagination from '../Pagination/Pagination'
 import UserProfile from '../UserProfile/UserProfile'
+import store from '../../store/index'
+import callGithubAPI from '../../utils/call-github-api'
+import { useSelector, useDispatch } from 'react-redux'
+
+import { RootState } from '../../store/rootReducer'
+import usersDisplaySlice from '../../store/usersSlice'
 
 
 const Cockpit = () => {
@@ -17,10 +20,18 @@ const Cockpit = () => {
   // local state
   const [queryState, setQueryState] = useState({inputQuery:'', lastTriggeredQuery: ''})
   const [isLoadingState, setIsLoadingState] = useState({isLoading: false})
-  const [usersState, setUsersState] = useState({users: []})
   const [resultsCountState, setResultsCountState] = useState({count: 0})
-  const [currentPageState, setCurrentPageState] = useState({currentPage: 0})
+  // refactoring for redux
+  // const [currentPageState, setCurrentPageState] = useState({currentPage: 0})
   
+  const [usersState, setUsersState] = useState({users: []})
+  const dispatch = useDispatch()
+  const {pageNum} = useSelector(
+    (state: RootState) => state.usersDisplay
+  )
+
+  const {setCurrentPage} = usersDisplaySlice.actions
+
   // functions triggered by cockpit or contained components
   const setQuery = (e: any) => {
     setQueryState({
@@ -32,28 +43,26 @@ const Cockpit = () => {
   const triggerSearchHandler = async (query: string, pageNum = 1) => {
     setIsLoadingState({isLoading: true})
     query = encodeURIComponent(queryState.inputQuery)
-    let response = await fetch(`https://api.github.com/search/users?q=${query}&page=${pageNum}`, {
-      method: "GET",
-      headers: {
-        Authorization: `token ${config.token}`,
-        Accept: `application/vnd.github.v3+json`
-      }
-    })
+    let response = await callGithubAPI(query, pageNum)
     let data = await response.json();
-    console.log("USERS:", data.items)
     
     setUsersState({users: data.items})
+    
     setResultsCountState({count: data.total_count})
-    setCurrentPageState({currentPage: pageNum});
     setIsLoadingState({isLoading: false})
+
+    // setCurrentPageState({currentPage: pageNum});
+    dispatch(setCurrentPage(pageNum))
   }
 
+  let currentPageNum = store.getState().usersDisplay.pageNum
   let getNextResults = () => {
-    triggerSearchHandler(queryState.lastTriggeredQuery, currentPageState.currentPage + 1)
+
+    triggerSearchHandler(queryState.lastTriggeredQuery, store.getState().usersDisplay.pageNum + 1)
   }
 
   let getLastResults = () => {
-    triggerSearchHandler(queryState.lastTriggeredQuery, currentPageState.currentPage - 1)
+    triggerSearchHandler(queryState.lastTriggeredQuery, store.getState().usersDisplay.pageNum - 1)
   }
   return (
     <React.Fragment>
@@ -67,7 +76,7 @@ const Cockpit = () => {
         : <React.Fragment>
             <Users users={usersState.users}/>
             <Pagination 
-            currentPage={currentPageState.currentPage} 
+            currentPage={currentPageNum} 
             resultsCount={resultsCountState.count} 
             nextClicked={getNextResults}
             backClicked={getLastResults} /> 
