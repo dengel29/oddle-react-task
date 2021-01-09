@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import {AppThunk} from './index'
+import callGithubAPI from '../utils/call-github-api';
 
 type UserType = {
   login: string,
@@ -8,7 +10,7 @@ type UserType = {
   gravatar_url?: string
 }
 type DisplayedUsers = { 
-  users:UserType[]
+  displayedUsers:UserType[]
 }
 
 type CurrentDisplayState = {
@@ -17,10 +19,11 @@ type CurrentDisplayState = {
 } & DisplayedUsers
 
 let initialState = {
-  pageNum: 0,
+  pageNum: -1,
   triggeredQuery: '',
-  users: []
+  displayedUsers: []
 } as CurrentDisplayState
+
 
 const usersDisplaySlice = createSlice({
   name: 'users',
@@ -29,11 +32,11 @@ const usersDisplaySlice = createSlice({
     setCurrentPage(state, action: PayloadAction<number>) {
       console.log("action payload",action.payload)
       state.pageNum = action.payload
-    }
-    // addUsers(state, action) {
-    //   // const Users: UsersType = action.payload
-    //   state.concat(action.payload)
-    // },
+    },
+    setDisplayedUsers(state, action: PayloadAction<DisplayedUsers>) {
+      // const Users: UsersType = action.payload
+      state.displayedUsers = action.payload.displayedUsers
+    },
     // toggleTodo(state, action) {
     //   const todo = state.find(todo => todo.id === action.payload)
     //   if (todo) {
@@ -42,5 +45,18 @@ const usersDisplaySlice = createSlice({
     // }
   }
 })
+const {setDisplayedUsers} = usersDisplaySlice.actions
+
+export const fetchUsers = (query: string, pageNum: number): AppThunk => async dispatch => {
+  try {
+    const response = await callGithubAPI(query, pageNum)
+    const data = await response.json()
+    let users = data.items;
+
+    dispatch(setDisplayedUsers({displayedUsers: users}))
+  } catch(e) {
+    console.log(e)
+  }
+}
 
 export default usersDisplaySlice
