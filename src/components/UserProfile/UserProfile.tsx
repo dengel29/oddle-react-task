@@ -38,14 +38,46 @@ const getUser = async (login: string, pageNum: number) => {
 const HorizontalSpacingDiv = styled.div`
   display:flex;
   flex-direction:row;
-  justify-content: space-around;
+  border-radius:35px;
+  border-left: 2px solid darkslateblue;
+  border-right: 2px solid darkslateblue;
+  justify-content: space-between;
+  text-align:center;
   align-items:top;
-  width: 80%;
+  width: 60%;
   margin: 0 auto;
   @media (max-width: 600px) {
-   content: {
-   }
+   flex-direction:column;
+   
   }
+  div {
+    text-align:center;
+    margin:0 auto;
+    padding: 0px 5px 0px 5px;
+  }
+  div p {
+    max-width: 12ch;
+  }
+
+`
+
+const BackButton = styled.button`
+  border: none;
+  outline: none;
+  height: 3em;
+  width: 5em;
+  border-radius: 5px;
+  background: #483d8b12;
+  top: 50%;
+  position: sticky;
+`
+
+const UserAvatar = styled.img`
+  display: flex;
+  margin: 0 auto;
+  height:7em;
+  width:7em;
+  border-radius:50%;
 `
 
 const UserProfile = (props: any) => {
@@ -93,8 +125,8 @@ const UserProfile = (props: any) => {
 
   return(
     <React.Fragment>
-      <button onClick={goBackHandler}> back </button>
-      <img src={user.avatar_url} alt=""/>
+      <BackButton onClick={goBackHandler}> back </BackButton>
+      <UserAvatar src={user.avatar_url} alt=""/>
       
       <HorizontalSpacingDiv>
         <div>

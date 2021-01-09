@@ -52,7 +52,6 @@ const Cockpit = () => {
           dispatch(fetchUsers(encodeURIComponent(lastTriggeredQuery), p))
         ])
       })().finally(() => {
-
         setIsLoadingState({isLoading: false})
         setIsTriggeredState({isTriggered: false})
       });
