@@ -15,12 +15,12 @@ type DisplayedUsers = {
 
 type CurrentDisplayState = {
   pageNum: number,
-  triggeredQuery: string
+  lastTriggeredQuery: string
 } & DisplayedUsers
 
 let initialState = {
   pageNum: -1,
-  triggeredQuery: '',
+  lastTriggeredQuery: '',
   displayedUsers: []
 } as CurrentDisplayState
 
@@ -30,13 +30,14 @@ const usersDisplaySlice = createSlice({
   initialState,
   reducers: {
     setCurrentPage(state, action: PayloadAction<number>) {
-      console.log("action payload",action.payload)
       state.pageNum = action.payload
     },
     setDisplayedUsers(state, action: PayloadAction<DisplayedUsers>) {
-      // const Users: UsersType = action.payload
       state.displayedUsers = action.payload.displayedUsers
     },
+    setLastTriggeredQuery(state, action: PayloadAction<string>) {
+      state.lastTriggeredQuery = action.payload
+    }
     // toggleTodo(state, action) {
     //   const todo = state.find(todo => todo.id === action.payload)
     //   if (todo) {

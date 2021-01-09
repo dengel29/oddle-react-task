@@ -9,6 +9,17 @@ type UserProps = {
   selected: React.MouseEventHandler
 }
 
+// useEffect(() => {
+  
+//   return await fetch(`https://api.github.com/search/users?q=${query}&page=${pageNum}`, {
+//     method: "GET",
+//     headers: {
+//       Authorization: `token ${config.token}`,
+//       Accept: `application/vnd.github.v3+json`
+//     }
+//   })  
+// })
+
 const UserContainer = styled.div`
   text-align:left;
   border: 1px solid #eee;
