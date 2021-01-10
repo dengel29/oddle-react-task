@@ -1,6 +1,8 @@
 import styled from 'styled-components'
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import {Link} from 'react-router-dom';
 import User from './User/User'
+
 
 type UserType = {
   login: string,
@@ -22,21 +24,34 @@ let UsersListContainer = styled.div`
 `
 
 const Users = (props: UsersProps) => {
-
+  const [selectedUserState, setSelectedUserState] = useState<{selectedUserId: null | number}>({selectedUserId: null})
+  
+  const userSelectedHandler = (id: number) => {
+    setSelectedUserState({selectedUserId: id})
+  }
   return <UsersListContainer> {
     props.users.map( (user, id) => {
       return (
-        <User
-          login={user.login}
-          id={user.id}
-          key={user.id}
-          repos_url={user.repos_url}
-          avatar_url={user.avatar_url}
-          gravatar_url={user.gravatar_url}
-         ></User>
+        <Link 
+          to={
+            {
+            pathname: '/' + user.login,
+            state: {user: user}
+            }
+          } 
+          
+          key={user.id}>
+          <User
+            login={user.login}
+            id={user.id}
+            repos_url={user.repos_url}
+            avatar_url={user.avatar_url}
+            gravatar_url={user.gravatar_url}
+            selected={() => userSelectedHandler(user.id)}
+            ></User>
+        </Link>
       )
     })
-    
   }</UsersListContainer>
 }
 

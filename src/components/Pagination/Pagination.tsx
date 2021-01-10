@@ -3,7 +3,6 @@ import styled from "styled-components"
 
 type PaginationProps = {
   currentPage: number | null,
-  resultsCount: number,
   nextClicked: React.MouseEventHandler,
   backClicked: React.MouseEventHandler
 }
@@ -43,7 +42,7 @@ const Pagination = (props: PaginationProps) => {
    */
   return (
       <HorizontalSpacingDiv >
-      { props.currentPage === 0 ? null :
+      { props.currentPage === -1 ? null :
         <React.Fragment>
           { props.currentPage === 1 ? <div></div> :
             <PaginationButton direction="back" onClick={props.backClicked}>Back</PaginationButton>
@@ -52,8 +51,7 @@ const Pagination = (props: PaginationProps) => {
           <PaginationButton direction="next" onClick={props.nextClicked}>Next</PaginationButton>
         </React.Fragment>
     }
-    </HorizontalSpacingDiv>
-    
+    </HorizontalSpacingDiv>    
   )
 }
 

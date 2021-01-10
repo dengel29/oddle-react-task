@@ -1,79 +1,108 @@
 // react modules
-import React, {useState} from 'react';
-
-
-// config
-import config from '../../environment';
+import React, {useEffect, useState} from 'react';
 
 // components 
 import Searchbar from '../Searchbar/Searchbar';
 import Users from '../Users/Users';
 import Loader from '../Loader/Loader'
 import Pagination from '../Pagination/Pagination'
+import UserProfile from '../UserProfile/UserProfile'
+import store from '../../store/index'
+import { useSelector, useDispatch } from 'react-redux'
 
+import { RootState } from '../../store/rootReducer'
+import usersDisplaySlice, {fetchUsers} from '../../store/usersSlice'
+import {useIsMount} from '../../hooks/useIsMount'
 
 const Cockpit = () => {
   
   // local state
   const [queryState, setQueryState] = useState({inputQuery:'', lastTriggeredQuery: ''})
+  const [fromPaginationState, setFromPaginationState] = useState({fromPagination: false})
   const [isLoadingState, setIsLoadingState] = useState({isLoading: false})
-  const [usersState, setUsersState] = useState({users: []})
-  const [resultsCountState, setResultsCountState] = useState({count: 0})
-  const [currentPageState, setCurrentPageState] = useState({currentPage: 0})
+  const [isTriggeredState, setIsTriggeredState] = useState({isTriggered: false})
   
+  // redux state and utilities
+  const dispatch = useDispatch()
+  const {pageNum, displayedUsers, lastTriggeredQuery} = useSelector(
+    (state: RootState) => state.usersDisplay
+  )
+
+  const {setCurrentPage, setLastTriggeredQuery} = usersDisplaySlice.actions
+
   // functions triggered by cockpit or contained components
   const setQuery = (e: any) => {
     setQueryState({
       inputQuery: e.target.value,
-      lastTriggeredQuery: queryState.lastTriggeredQuery
+      lastTriggeredQuery: queryState.lastTriggeredQuery,
     })
   }
 
-  const triggerSearchHandler = async (query: string, pageNum = 1) => {
-    setIsLoadingState({isLoading: true})
-    query = encodeURIComponent(queryState.inputQuery)
-    let response = await fetch(`https://api.github.com/search/users?q=${query}&page=${pageNum}`, {
-      method: "GET",
-      headers: {
-        Authorization: `token ${config.token}`,
-        Accept: `application/vnd.github.v3+json`
-      }
-    })
-    let data = await response.json();
-    console.log("USERS:", data.items)
+  const isMount = useIsMount()
+  useEffect(() => {
+    if (isMount) {
+      return
+    } else {
+     ( async function ()  {
+       setIsLoadingState({isLoading: true})
+       let p = pageNum === -1 ? 1 : pageNum
+       console.log("p in the async", p)
+        await Promise.all([
+          dispatch(setCurrentPage(p)),
+          dispatch(fetchUsers(encodeURIComponent(lastTriggeredQuery), p))
+        ])
+      })().finally(() => {
+        setIsLoadingState({isLoading: false})
+        setIsTriggeredState({isTriggered: false})
+      });
+    } 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[isTriggeredState.isTriggered])
+
+
+  const triggerSearchHandler = async (query: string, pageNum: number, fromPagination: boolean) => {
+    // the "useEffect" is listening to this triggered state, then unsets it 
+    // not sure if this is best practices
     
-    setUsersState({users: data.items})
-    setResultsCountState({count: data.total_count})
-    setCurrentPageState({currentPage: pageNum});
-    setIsLoadingState({isLoading: false})
+    if (fromPagination) {
+      setFromPaginationState({fromPagination: true})
+      dispatch(setCurrentPage(pageNum));
+    } else {
+      setFromPaginationState({fromPagination: false})
+      dispatch(setCurrentPage(1));
+    }
+  
+    dispatch(setLastTriggeredQuery(query))
+    setIsTriggeredState({isTriggered: true});
+    // setUsersState({users: data.items})    
+    // setIsLoadingState({isLoading: false})
+    
   }
-
+  
   let getNextResults = () => {
-    triggerSearchHandler(queryState.lastTriggeredQuery, currentPageState.currentPage + 1)
+    triggerSearchHandler(lastTriggeredQuery, pageNum + 1, true)
   }
 
   let getLastResults = () => {
-    triggerSearchHandler(queryState.lastTriggeredQuery, currentPageState.currentPage - 1)
+    triggerSearchHandler(lastTriggeredQuery, pageNum - 1, true)
   }
   return (
     <React.Fragment>
       <Searchbar 
       value={queryState.inputQuery} 
       setQuery={setQuery} 
-      triggerSearch={() => triggerSearchHandler(queryState.inputQuery)}/>
+      triggerSearch={() => triggerSearchHandler(queryState.inputQuery, pageNum, false)}/>
       { isLoadingState.isLoading 
         ? 
           <Loader/>
         : <React.Fragment>
-            <Users users={usersState.users}/>
+            <Users users={displayedUsers}/>
             <Pagination 
-            currentPage={currentPageState.currentPage} 
-            resultsCount={resultsCountState.count} 
+            currentPage={pageNum} 
             nextClicked={getNextResults}
             backClicked={getLastResults} /> 
           </React.Fragment> 
       }
-     
     </React.Fragment>
   )
 }
