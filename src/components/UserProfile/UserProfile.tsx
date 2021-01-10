@@ -37,26 +37,54 @@ const getUser = async (login: string, pageNum: number) => {
 
 const HorizontalSpacingDiv = styled.div`
   display:flex;
+  height:40vh;
   flex-direction:row;
-  border-radius:35px;
-  border-left: 2px solid darkslateblue;
-  border-right: 2px solid darkslateblue;
   justify-content: space-between;
   text-align:center;
   align-items:top;
   width: 60%;
   margin: 0 auto;
+  border-bottom: 5px dotted #483d8b59;
   @media (max-width: 600px) {
-   flex-direction:column;
-   
+    flex-direction:column;
+    height: unset;
+    border-bottom: 0px dotted white;
   }
   div {
+    height: inherit;
+    overflow-y: scroll;
     text-align:center;
     margin:0 auto;
     padding: 0px 5px 0px 5px;
+    margin-bottom: 2em;
+    scroll-behavior: smooth;
+    text-overflow: clip;
+    overflow-x: hidden;
+    width: 30%;
+    @media (max-width: 600px) {
+      height: 12em;
+      width:70%;
+      border-bottom: 5px dotted #483d8b59;
+    }
+  }
+
+  div h3 {
+    position: sticky;
+    top: 0em;
+    background: darkslateblue;
+    padding-top: unset;
+    margin-top: unset;
+    color: white;
+    border-radius: 5px;
+    margin-bottom: 0em;
   }
   div p {
-    max-width: 12ch;
+    margin: 0 auto;
+    line-height:2em;
+    max-width: 14chch;
+    @media (max-width: 600px) {
+      max-width:70%
+    }
   }
 
 `
@@ -70,14 +98,20 @@ const BackButton = styled.button`
   background: #483d8b12;
   top: 50%;
   position: sticky;
+  font-weight:600;
 `
 
 const UserAvatar = styled.img`
+  margin-bottom: 1em;
   display: flex;
   margin: 0 auto;
   height:7em;
   width:7em;
   border-radius:50%;
+`
+
+const UserLogin = styled.h2`
+  text-align:center;
 `
 
 const UserProfile = (props: any) => {
@@ -127,7 +161,7 @@ const UserProfile = (props: any) => {
     <React.Fragment>
       <BackButton onClick={goBackHandler}> back </BackButton>
       <UserAvatar src={user.avatar_url} alt=""/>
-      
+      <UserLogin>{user.login}</UserLogin>
       <HorizontalSpacingDiv>
         <div>
           <h3>Repos</h3>
