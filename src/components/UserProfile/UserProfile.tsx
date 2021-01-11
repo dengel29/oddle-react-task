@@ -4,9 +4,8 @@ import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import Loader from '../Loader/Loader';
 
-import {callGithubUserReposAPI, callGithubFollowersAPI, callGithubFollowingAPI, callGithubUserAPI} from '../../utils/github-user-call';
-import callGithubAPI from '../../utils/call-github-api';
-import { nextTick } from 'process';
+import {callGithubUserReposAPI, callGithubFollowersAPI, callGithubFollowingAPI, callGithubUserAPI} from '../../utils/githubUserCall';
+import callGithubAPI from '../../utils/callGithubAPI';
 
 type User = UserFromRouterState | UserFromDirectURL
 
@@ -141,10 +140,9 @@ let isUserFromDirectURL = (obj: any) => {
 const UserProfile = (props: any) => {
 
   let history = useHistory()
-  let goBackHandler;
+  let goBackHandler: React.MouseEventHandler;
   if (props?.history?.history?.state?.user) {
        goBackHandler = () => {
-         console.log("we're in here", props)
          props.history.goBack()
        }
     } else {
@@ -182,56 +180,57 @@ const UserProfile = (props: any) => {
   const [userState, setUserState] = useState<{user: User}>({user: dummyUser})
   let {login} = useParams<{login: string}>()
   let user: User;
+
+  const getUserFromStateOrHistory = async () => {
+    setIsLoadingState({isLoading: true});
+    if (props?.location?.state?.user) {
+      user = props?.location?.state?.user
+      setUserState({user: props.location.state.user})
+      await getUserDetails()
+    } else {
+      user = await getUser(login);
+      setUserState({user: user})
+    }
+    setIsLoadingState({isLoading: false});
+  }
+
   useEffect(() => {
-    (async function() {
-      if (props?.location?.state?.user) {
-        user = props?.location?.state?.user
-        setUserState({user: props.location.state.user})
-      } else {
-        user = await getUser(login);
-        setUserState({user: user})
-      }
-    })()
+    getUserFromStateOrHistory()
   },[])
     
-  // let user = props?.location?.state?.user 
-  useEffect(() => {
-    setIsLoadingState({isLoading: true});
-    (async function () {
-      // user = await getUser(login)
-      if (!isUserFromDirectURL(user)) {
-        user = await getUser(login);
-        setUserState({user: user})
-      }
-      console.log("inside mounted")
-      let reposResponse = await callGithubUserReposAPI(login)
-      let repos = await reposResponse.json();
-      setReposState({repos: repos})
+  const getRepos = async () => {
+    const reposResponse = await callGithubUserReposAPI(login)
+    const repos = await reposResponse.json();
+    setReposState({repos: repos})
+  }
 
-      let followersResponse = await callGithubFollowersAPI(login)
-      let followers= await followersResponse.json()
-      
-      setFollowersState({followers: followers})
+  const getFollowers = async () => {
+    const followersResponse = await callGithubFollowersAPI(login)
+    const followers= await followersResponse.json()
+    setFollowersState({followers: followers})
+  }
 
-      let followingResponse = await callGithubFollowingAPI(login)
-      let following = await followingResponse.json()
-      
-      setFollowingState({following: following})
-    })().finally(() => setIsLoadingState({isLoading: false}))
-  },[login])
-  /**
-   * TODO
-   * [] make requests to the user repositories api, folowers api, and following api
-   * [] make it look pretty
-   * [x] add a back button
-   * [] make sure the historyAPI is working(?)
-   * [] create a check that, if the route is accessed without being "navigated" 
-   * to from within the app, that it will fetch the correct data anyways
-   */
-  // console.log('repostate', reposState.repos)
-  // const repos = reposState.repos
-  // const followers = followersState.followers
-  // const following = followingState.following
+  const getFollowing = async () => {
+    const followingResponse = await callGithubFollowingAPI(login)
+    const following = await followingResponse.json()
+    setFollowingState({following: following})
+  }
+  const getUserDetails = async () => {
+    // user = await getUser(login)
+    if (!isUserFromDirectURL(user)) {
+      user = await getUser(login);
+      setUserState({user: user})
+      Promise.all([
+        getRepos(),
+        getFollowers(),
+        getFollowing(),
+      ])
+    }
+  }
+
+  // useEffect(() => {
+  //  getUserDetails()
+  // },[login])
    
    let repos = () => {
      if (reposState.repos.length === 0) {

@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import {AppThunk} from './index'
-import callGithubAPI from '../utils/call-github-api';
+import callGithubAPI from '../utils/callGithubAPI';
 
 let initialState = {
   login: ''

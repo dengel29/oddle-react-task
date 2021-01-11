@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+// import callGithubAPI from '../utils/callGithubAPI';
+import callGithubAPI from '../utils/callGithubAPI'
 import {AppThunk} from './index'
-import callGithubAPI from '../utils/call-github-api';
 
 type UserType = {
   login: string,
@@ -16,14 +17,16 @@ type DisplayedUsers = {
 type CurrentDisplayState = {
   pageNum: number,
   lastTriggeredQuery: string
-  totalUsers: number
+  totalUsers: number,
+  navigatedToUser: boolean
 } & DisplayedUsers
 
 let initialState = {
   pageNum: -1,
   lastTriggeredQuery: '',
   displayedUsers: [],
-  totalUsers: -1
+  totalUsers: -1,
+  navigatedToUser: true
 } as CurrentDisplayState
 
 
@@ -38,17 +41,15 @@ const usersDisplaySlice = createSlice({
       state.displayedUsers = action.payload.displayedUsers
     },
     setLastTriggeredQuery(state, action: PayloadAction<string>) {
+      // console.log(action.payload)
       state.lastTriggeredQuery = action.payload
     },
     setTotalUsers(state, action: PayloadAction<number>) {
       state.totalUsers = action.payload
+    },
+    setNavigatedToUser(state, action: PayloadAction<boolean>) {
+      state.navigatedToUser = action.payload
     }
-    // toggleTodo(state, action) {
-    //   const todo = state.find(todo => todo.id === action.payload)
-    //   if (todo) {
-    //     todo.completed = !todo.completed
-    //   }
-    // }
   }
 })
 
@@ -61,11 +62,11 @@ export const fetchUsers = (query: string, pageNum: number): AppThunk => async di
     const data = await response.json()
     let users = data.items;
     let totalCount = data.total_count
-    console.log(totalCount)
     dispatch(setTotalUsers(totalCount))
     dispatch(setDisplayedUsers({displayedUsers: users}))
-  } catch(e) {
-    console.log(e)
+  } catch(error) {
+    console.log(error)
+    alert(JSON.stringify(error))
   }
 }
 

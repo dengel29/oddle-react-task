@@ -20,7 +20,25 @@ let UsersListContainer = styled.div`
   display:grid;
   grid-template-columns: minmax(min-content, 12em) repeat(auto-fill, 10em);
   grid-gap: 0.8em 0.8em;
-  padding: 0em 0.8em 0em 0.8em
+  padding: 0em 0.8em 0em 0.8em;
+  
+  a {
+    text-decoration:none;
+    color:black;
+    h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color:black;
+      text-decoration
+    }
+    &:focus {
+      border: 4px solid aqua;
+      background-color: black;
+      h3 {
+        color: white;
+      }
+    }
+  }
 `
 
 const Users = (props: UsersProps) => {

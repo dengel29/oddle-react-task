@@ -49,7 +49,7 @@ const Searchbar = (props: SearchbarProps) => {
   return (
     <SearchAlignmentContainer>
       <SearchInput type="text" value={props.value} onChange={props.setQuery}/> 
-      <SearchButton onClick={props.triggerSearch}>Bounce that boy</SearchButton>  
+      <SearchButton onClick={props.triggerSearch}>Search Github For Users</SearchButton>  
     </SearchAlignmentContainer>
   );
 };

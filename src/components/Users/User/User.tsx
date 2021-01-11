@@ -30,20 +30,15 @@ const UserContainer = styled.div`
   height:min-content;
   max-height:14em;
 
+  &:focus {
+    backgorund-color:blue;
+    border: 4px solid aqua
+  }
   img {
     width:100%;
     box-shadow: 1px 3px 3px darkslateblue;
     object-fit:cover;
     height:10em;
-  }
-
-  h3 {
-    font-size: 1rem;
-    font-weight: 700;
-  }
-
-  a {
-
   }
 `
 

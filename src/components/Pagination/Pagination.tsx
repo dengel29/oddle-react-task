@@ -4,6 +4,7 @@ import styled from "styled-components"
 type PaginationProps = {
   currentPage: number,
   totalUsers: number | null,
+  usersOnPageCount: number |null,
   nextClicked: React.MouseEventHandler,
   backClicked: React.MouseEventHandler
 }
@@ -34,33 +35,34 @@ const PaginationButton = styled.button<{direction: string}>`
   }
 `
 
+
 const Pagination = (props: PaginationProps) => {
-  /**
-   * [] shows current page
-   * [] next and back buttons:
-   * [] next sends message to cockpit to call to {currentUrl}&page={currentPage + 1};
-   * [] back sends message to cockpit to call to {currentUrl}&page={currentPage - 1} || cached response?;
-   */
+  const UserMessage = () => {
+    if (props?.totalUsers === 0) {
+      return <em>Looks like no users match that search</em>
+    } else if (props?.totalUsers === -1) {
+      return <em>Have a search</em>
+    } else {
+     
+    }
+  }
   return (
       <HorizontalSpacingDiv >
-        {
-          (props?.totalUsers === 0) ? <em>Looks like no users match that search</em> : 
-        
-         props.currentPage === -1 ? <em>Have a search</em> :
+        { props.totalUsers && props.totalUsers <= 0 ? UserMessage() :
         <React.Fragment>
           { props.currentPage === 1 ? <div></div> :
             <PaginationButton direction="back" onClick={props.backClicked}>Back</PaginationButton>
           }
           <p>{props.currentPage}</p>
           {
-            (props?.totalUsers) ?
-              (props.totalUsers < (30 * props.currentPage + 1)) ? <div></div> :
+            (props?.totalUsers && props?.usersOnPageCount) ?
+              (props.totalUsers < (30 * props.currentPage + 1)) || props.usersOnPageCount < 30 ? <div></div> :
               <PaginationButton direction="next" onClick={props.nextClicked}>Next</PaginationButton>
             : null
           }
         </React.Fragment>
-    }
-    </HorizontalSpacingDiv>    
+        }
+      </HorizontalSpacingDiv>    
   )
 }
 

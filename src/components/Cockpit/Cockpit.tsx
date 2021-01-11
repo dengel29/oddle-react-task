@@ -23,14 +23,13 @@ const Cockpit = () => {
   
   // redux state and utilities
   const dispatch = useDispatch()
-  const {pageNum, displayedUsers, lastTriggeredQuery, totalUsers} = useSelector(
+  const {pageNum, displayedUsers, lastTriggeredQuery, totalUsers, navigatedToUser} = useSelector(
     (state: RootState) => state.usersDisplay
   )
 
   const {setCurrentPage, setLastTriggeredQuery} = usersDisplaySlice.actions
 
   // functions triggered by cockpit or contained components
-
   const setQuery = (e: any) => {
     // two-way binding
     let query = e.target.value;
@@ -41,31 +40,33 @@ const Cockpit = () => {
     debounceOnChange(query)
   }
 
-    const search = (query: string) => {
-    dispatch(setCurrentPage(1));
+  const search = (query: string) => {
     dispatch(setLastTriggeredQuery(query))
+    dispatch(setCurrentPage(1));
   }
-
   const debouncedSearch = debounce(search, 5000)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debounceOnChange = useCallback(debouncedSearch, [])
 
+  const fetchFilteredUsers = async () =>  {
+    setIsLoadingState({isLoading: true})
+    try {
+      let p = pageNum === -1 ? 1 : pageNum;
+       await Promise.all([
+         dispatch(setCurrentPage(p)),
+         dispatch(fetchUsers(encodeURIComponent(lastTriggeredQuery), p))
+       ])
+     } catch(error) {
+      alert(JSON.stringify(error))
+     }
+     setIsLoadingState({isLoading: false})
+    }
   const isMount = useIsMount()
   useEffect(() => { 
-    if (isMount || lastTriggeredQuery === '') {
+    if (isMount && lastTriggeredQuery === '')  {
       return
     } else {
-     ( async function ()  {
-       setIsLoadingState({isLoading: true})
-       let p = pageNum === -1 ? 1 : pageNum;
-        await Promise.all([
-          dispatch(setCurrentPage(p)),
-          dispatch(fetchUsers(encodeURIComponent(lastTriggeredQuery), p))
-        ])
-      })().finally(() => {
-        setIsLoadingState({isLoading: false})
-        console.log(totalUsers)
-      });
+      fetchFilteredUsers();
     } 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[lastTriggeredQuery, pageNum])
@@ -100,6 +101,7 @@ const Cockpit = () => {
         : <React.Fragment>
             <Users users={displayedUsers}/>
             <Pagination 
+            usersOnPageCount={displayedUsers.length}
             totalUsers={totalUsers}
             currentPage={pageNum} 
             nextClicked={getNextResults}

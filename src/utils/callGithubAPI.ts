@@ -1,8 +1,8 @@
 // config
-import config from './../environment';
+import config from '../environment';
 
 const callGithubAPI = async (query: string, pageNum: number) => {
-  return await fetch(`https://api.github.com/search/users?q=${query}&page=${pageNum}`, {
+  return fetch(`https://api.github.com/search/users?q=${query}&page=${pageNum}`, {
     method: "GET",
     headers: {
       Authorization: `token ${config.token}`,
