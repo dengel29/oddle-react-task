@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
+
 import styled from 'styled-components';
 import Loader from '../Loader/Loader';
 
@@ -138,6 +139,21 @@ let isUserFromDirectURL = (obj: any) => {
 } 
 
 const UserProfile = (props: any) => {
+
+  let history = useHistory()
+  let goBackHandler;
+  if (props?.history?.history?.state?.user) {
+       goBackHandler = () => {
+         console.log("we're in here", props)
+         props.history.goBack()
+       }
+    } else {
+      goBackHandler = () => {
+        console.log('did the other go  back handler')
+        history.push('/')
+      }
+    }
+
   let dummyUser = {
   login: "finding user...",
   id: 2,
@@ -216,9 +232,6 @@ const UserProfile = (props: any) => {
   // const repos = reposState.repos
   // const followers = followersState.followers
   // const following = followingState.following
-   const goBackHandler = () => {
-     props.history.goBack()
-   }
    
    let repos = () => {
      if (reposState.repos.length === 0) {
