@@ -2,7 +2,8 @@ import React from "react"
 import styled from "styled-components"
 
 type PaginationProps = {
-  currentPage: number | null,
+  currentPage: number,
+  totalUsers: number | null,
   nextClicked: React.MouseEventHandler,
   backClicked: React.MouseEventHandler
 }
@@ -42,13 +43,21 @@ const Pagination = (props: PaginationProps) => {
    */
   return (
       <HorizontalSpacingDiv >
-      { props.currentPage === -1 ? null :
+        {
+          (props?.totalUsers === 0) ? <em>Looks like no users match that search</em> : 
+        
+         props.currentPage === -1 ? <em>Have a search</em> :
         <React.Fragment>
           { props.currentPage === 1 ? <div></div> :
             <PaginationButton direction="back" onClick={props.backClicked}>Back</PaginationButton>
           }
           <p>{props.currentPage}</p>
-          <PaginationButton direction="next" onClick={props.nextClicked}>Next</PaginationButton>
+          {
+            (props?.totalUsers) ?
+              (props.totalUsers < (30 * props.currentPage + 1)) ? <div></div> :
+              <PaginationButton direction="next" onClick={props.nextClicked}>Next</PaginationButton>
+            : null
+          }
         </React.Fragment>
     }
     </HorizontalSpacingDiv>    

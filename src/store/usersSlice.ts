@@ -16,12 +16,14 @@ type DisplayedUsers = {
 type CurrentDisplayState = {
   pageNum: number,
   lastTriggeredQuery: string
+  totalUsers: number
 } & DisplayedUsers
 
 let initialState = {
   pageNum: -1,
   lastTriggeredQuery: '',
-  displayedUsers: []
+  displayedUsers: [],
+  totalUsers: -1
 } as CurrentDisplayState
 
 
@@ -37,6 +39,9 @@ const usersDisplaySlice = createSlice({
     },
     setLastTriggeredQuery(state, action: PayloadAction<string>) {
       state.lastTriggeredQuery = action.payload
+    },
+    setTotalUsers(state, action: PayloadAction<number>) {
+      state.totalUsers = action.payload
     }
     // toggleTodo(state, action) {
     //   const todo = state.find(todo => todo.id === action.payload)
@@ -46,14 +51,18 @@ const usersDisplaySlice = createSlice({
     // }
   }
 })
-const {setDisplayedUsers} = usersDisplaySlice.actions
+
+
+const {setDisplayedUsers, setTotalUsers} = usersDisplaySlice.actions
 
 export const fetchUsers = (query: string, pageNum: number): AppThunk => async dispatch => {
   try {
     const response = await callGithubAPI(query, pageNum)
     const data = await response.json()
     let users = data.items;
-
+    let totalCount = data.total_count
+    console.log(totalCount)
+    dispatch(setTotalUsers(totalCount))
     dispatch(setDisplayedUsers({displayedUsers: users}))
   } catch(e) {
     console.log(e)

@@ -6,30 +6,24 @@ import Searchbar from '../Searchbar/Searchbar';
 import Users from '../Users/Users';
 import Loader from '../Loader/Loader';
 import Pagination from '../Pagination/Pagination';
-import UserProfile from '../UserProfile/UserProfile';
-import store from '../../store/index';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { RootState } from '../../store/rootReducer';
 import usersDisplaySlice, {fetchUsers} from '../../store/usersSlice';
 import {useIsMount} from '../../hooks/useIsMount';
 import debounce from 'lodash.debounce';
-import throttle from 'lodash.throttle'
 
 
 const Cockpit = () => {
   
   // local state
   const [queryState, setShownQueryState] = useState({inputQuery:''})
-  const [fromPaginationState, setFromPaginationState] = useState({fromPagination: false})
+  // const [fromPaginationState, setFromPaginationState] = useState({fromPagination: false})
   const [isLoadingState, setIsLoadingState] = useState({isLoading: false})
-
-
-  const [isTriggeredState, setIsTriggeredState] = useState({isTriggered: false})
   
   // redux state and utilities
   const dispatch = useDispatch()
-  const {pageNum, displayedUsers, lastTriggeredQuery} = useSelector(
+  const {pageNum, displayedUsers, lastTriggeredQuery, totalUsers} = useSelector(
     (state: RootState) => state.usersDisplay
   )
 
@@ -52,9 +46,9 @@ const Cockpit = () => {
     dispatch(setLastTriggeredQuery(query))
   }
 
-  const throttledSearch = debounce(search, 2000)
+  const debouncedSearch = debounce(search, 5000)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debounceOnChange = useCallback(throttledSearch, [])
+  const debounceOnChange = useCallback(debouncedSearch, [])
 
   const isMount = useIsMount()
   useEffect(() => { 
@@ -63,14 +57,14 @@ const Cockpit = () => {
     } else {
      ( async function ()  {
        setIsLoadingState({isLoading: true})
-       let p = pageNum === -1 ? 1 : pageNum
-       console.log("p in the async", p)
+       let p = pageNum === -1 ? 1 : pageNum;
         await Promise.all([
           dispatch(setCurrentPage(p)),
           dispatch(fetchUsers(encodeURIComponent(lastTriggeredQuery), p))
         ])
       })().finally(() => {
         setIsLoadingState({isLoading: false})
+        console.log(totalUsers)
       });
     } 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,10 +73,10 @@ const Cockpit = () => {
 
   const triggerSearchHandler = async (query: string, pageNum: number, fromPagination: boolean) => {
     if (fromPagination) {
-      setFromPaginationState({fromPagination: true})
       dispatch(setCurrentPage(pageNum));
     } else {
-      setFromPaginationState({fromPagination: false})
+      debouncedSearch.cancel();
+      dispatch(setLastTriggeredQuery(query));
       dispatch(setCurrentPage(1));
     }
   }
@@ -106,6 +100,7 @@ const Cockpit = () => {
         : <React.Fragment>
             <Users users={displayedUsers}/>
             <Pagination 
+            totalUsers={totalUsers}
             currentPage={pageNum} 
             nextClicked={getNextResults}
             backClicked={getLastResults} /> 
