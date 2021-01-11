@@ -29,7 +29,7 @@ const Users = (props: UsersProps) => {
   const userSelectedHandler = (id: number) => {
     setSelectedUserState({selectedUserId: id})
   }
-  return <UsersListContainer> {
+  return <UsersListContainer> { 
     props.users.map( (user, id) => {
       return (
         <Link 
