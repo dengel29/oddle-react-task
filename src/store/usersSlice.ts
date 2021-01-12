@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-// import callGithubAPI from '../utils/callGithubAPI';
 import callGithubAPI from '../utils/callGithubAPI'
 import {AppThunk} from './index'
 

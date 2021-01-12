@@ -1,10 +1,11 @@
 import React from 'react'
-import { useDispatch } from 'react-redux'
 import styled from 'styled-components'
 
-import usersDisplaySlice from '../store/usersSlice';
 import {ThemeProps} from '../types';
 
+// redux
+import { useDispatch } from 'react-redux'
+import usersDisplaySlice from '../store/usersSlice';
 const { toggleTheme } = usersDisplaySlice.actions;
 
 const ThemeToggler = styled.button<ThemeProps> `
@@ -34,11 +35,9 @@ const ThemeToggler = styled.button<ThemeProps> `
   margin-bottom:1.4em;
   `;
 
-function Navbar(props: any) {
-const dispatch = useDispatch();
-
+const Navbar = (props: any) => {
+  const dispatch = useDispatch();
   return (
-
     <React.Fragment>
       <NavContainer theme={props.theme}>
         <h3>Oddle React Github Task from Dan Engel</h3>

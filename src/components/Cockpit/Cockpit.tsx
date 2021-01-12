@@ -6,13 +6,16 @@ import Searchbar from '../Searchbar/Searchbar';
 import Users from '../Users/Users';
 import Loader from '../Loader/Loader';
 import Pagination from '../Pagination/Pagination';
-import { useSelector, useDispatch } from 'react-redux';
+import Navbar from '../Navbar';
 
+// from redux and store
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/rootReducer';
 import usersDisplaySlice, {fetchUsers} from '../../store/usersSlice';
-import {useIsMount} from '../../hooks/useIsMount';
+
+// utilities
 import debounce from 'lodash.debounce';
-import Navbar from '../Navbar';
+import {useIsMount} from '../../hooks/useIsMount';
 
 
 const Cockpit = (props: any) => {
@@ -22,17 +25,16 @@ const Cockpit = (props: any) => {
   // const [fromPaginationState, setFromPaginationState] = useState({fromPagination: false})
   const [isLoadingState, setIsLoadingState] = useState({isLoading: false})
   
-  // redux state and utilities
+  // initialize redux state and utilities
   const dispatch = useDispatch()
-  const {pageNum, displayedUsers, lastTriggeredQuery, totalUsers, navigatedToUser, theme} = useSelector(
+  const {pageNum, displayedUsers, lastTriggeredQuery, totalUsers, theme} = useSelector(
     (state: RootState) => state.usersDisplay
   )
-
   const {setCurrentPage, setLastTriggeredQuery} = usersDisplaySlice.actions
+  const isMount = useIsMount()
 
-  // functions triggered by cockpit or contained components
+
   const setQuery = (e: any) => {
-    // two-way binding
     let query = e.target.value;
     setShownQueryState({
       inputQuery: query
@@ -60,11 +62,10 @@ const Cockpit = (props: any) => {
      } catch(error) {
       alert(JSON.stringify(error))
      }
-     setIsLoadingState({isLoading: false})
-    }
-  const isMount = useIsMount()
+    setIsLoadingState({isLoading: false})
+  }
+
   useEffect(() => { 
-    console.log(props.history.location)
     if (isMount && lastTriggeredQuery === '')  {
       return
     } else {

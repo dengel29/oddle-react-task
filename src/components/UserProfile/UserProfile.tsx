@@ -155,8 +155,6 @@ const UserAvatar = styled.img`
 const UserLogin = styled.h2`
   text-align:center;
 `
-
-
 const UserProfile  = (props: any) => {
   
   let history = useHistory()
@@ -216,21 +214,13 @@ const UserProfile  = (props: any) => {
 
   const getUserFromStateOrHistory = async () => {
     setIsLoadingState({isLoading: true});
-    // if (props?.history?.state?.user) {
-    //   user = props.location.state.user
-    //   setUserState({user: user})
-    // } else {
-    //   user = await getFullUser(login);
-    //   setUserState({user: user})
-    // }
-      user = await getFullUser(login);
-      setUserState({user: user})
+    user = await getFullUser(login);
+    setUserState({user: user})
     await getUserCollections()
     setIsLoadingState({isLoading: false});
   }
 
   useEffect(() => {
-    console.log(props?.history?.location?.state)
     getUserFromStateOrHistory()
   },[])
     
