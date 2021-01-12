@@ -7,13 +7,11 @@ import Loader from '../Loader/Loader';
 import {callGithubUserReposAPI, callGithubFollowersAPI, callGithubFollowingAPI, callGithubUserAPI} from '../../utils/githubUserCall';
 import callGithubAPI from '../../utils/callGithubAPI';
 
-type User = UserFromRouterState | UserFromDirectURL
-
 type UserFromRouterState = {
   login: string;
   id: number;
   node_id: string;
-  avatar_url: string | JSX.Element;
+  avatar_url: string;
   gravatar_id: string;
   url: string;
   html_url: string;
@@ -31,7 +29,7 @@ type UserFromRouterState = {
   score?: number;
 }
 
-type UserFromDirectURL = {
+type User = {
   name: string;
   company?: any;
   blog: string;
@@ -44,26 +42,32 @@ type UserFromDirectURL = {
   public_gists: number;
   followers: number;
   following: number;
-  created_at: Date;
-  updated_at: Date;
+  created_at?: Date;
+  updated_at?: Date;
 } & UserFromRouterState
 
-const getUser = async (login: string) => {
+const getFullUser = async (login: string) => {
   let res = await callGithubUserAPI(login)
-  let user: UserFromDirectURL = await res.json()
+  let user: User = await res.json()
   return user
 }
 
-const HorizontalSpacingDiv = styled.div`
+interface HSDProps {
+  border: boolean
+}
+
+const HorizontalSpacingDiv = styled.div<HSDProps>`
   display:flex;
   height:40vh;
   flex-direction:row;
+  padding-bottom: 0.8em;
   justify-content: space-between;
   text-align:center;
   align-items:top;
   width: 60%;
   margin: 0 auto;
-  border-bottom: 5px dotted #483d8b59;
+  margin-top: 1em;
+  border-bottom: ${props => props.border ? '4px dotted darkslateblue' : ''};
   @media (max-width: 600px) {
     flex-direction:column;
     height: unset;
@@ -105,6 +109,9 @@ const HorizontalSpacingDiv = styled.div`
       max-width:70%
     }
   }
+  pre {
+    text-align:initial
+  }
 
 `
 
@@ -133,15 +140,13 @@ const UserLogin = styled.h2`
   text-align:center;
 `
 
-let isUserFromDirectURL = (obj: any) => {
-  return obj === undefined || obj.created !== undefined
-} 
 
 const UserProfile = (props: any) => {
-
+  
   let history = useHistory()
+  let {login} = useParams<{login: string}>()
   let goBackHandler: React.MouseEventHandler;
-  if (props?.history?.history?.state?.user) {
+  if (props?.history?.state?.user) {
        goBackHandler = () => {
          props.history.goBack()
        }
@@ -151,12 +156,11 @@ const UserProfile = (props: any) => {
         history.push('/')
       }
     }
-
-  let dummyUser = {
-  login: "finding user...",
+  let dummyUser: User = {
+  login: login,
   id: 2,
   node_id: "string",
-  avatar_url: <Loader/>,
+  avatar_url: "",
   gravatar_id: "string",
   url: "string",
   html_url: "string",
@@ -172,25 +176,38 @@ const UserProfile = (props: any) => {
   type: "string",
   site_admin: false,
   score: 1,
+  name: "string",
+  company: "none",
+  blog: "string",
+  location: "string",
+  email: "string",
+  hireable: "no",
+  public_repos: 10,
+  public_gists: 10,
+  followers: 10,
+  following: 10,
+  created_at: undefined,
+  updated_at: undefined
   }
   const [reposState, setReposState] = useState<{repos: any[]}>({repos: []})
   const [followersState, setFollowersState] = useState<{followers: any[]}>({followers: []})
   const [followingState, setFollowingState] = useState<{following: any[]}>({following: []})
   const [isLoadingState, setIsLoadingState] = useState<{isLoading: boolean}>({isLoading: true})
   const [userState, setUserState] = useState<{user: User}>({user: dummyUser})
-  let {login} = useParams<{login: string}>()
   let user: User;
 
   const getUserFromStateOrHistory = async () => {
     setIsLoadingState({isLoading: true});
-    if (props?.location?.state?.user) {
-      user = props?.location?.state?.user
-      setUserState({user: props.location.state.user})
-      await getUserDetails()
-    } else {
-      user = await getUser(login);
+    // if (props?.history?.state?.user) {
+    //   user = props.location.state.user
+    //   setUserState({user: user})
+    // } else {
+    //   user = await getFullUser(login);
+    //   setUserState({user: user})
+    // }
+      user = await getFullUser(login);
       setUserState({user: user})
-    }
+    await getUserCollections()
     setIsLoadingState({isLoading: false});
   }
 
@@ -215,28 +232,19 @@ const UserProfile = (props: any) => {
     const following = await followingResponse.json()
     setFollowingState({following: following})
   }
-  const getUserDetails = async () => {
-    // user = await getUser(login)
-    if (!isUserFromDirectURL(user)) {
-      user = await getUser(login);
-      setUserState({user: user})
-      Promise.all([
-        getRepos(),
-        getFollowers(),
-        getFollowing(),
-      ])
-    }
+  const getUserCollections = async () => {
+    Promise.all([
+      getRepos(),
+      getFollowers(),
+      getFollowing(),
+    ])
   }
 
-  // useEffect(() => {
-  //  getUserDetails()
-  // },[login])
-   
    let repos = () => {
-     if (reposState.repos.length === 0) {
+     if (reposState.repos.length === 0 && !isLoadingState.isLoading) {
       return (
         <div>
-          <h3>Repos</h3>
+          <h3>Repos ({userState.user.public_repos})</h3>
           <br/>
           <em>No repos. Guess {login} uses Gitlab.</em>
         </div>
@@ -244,7 +252,7 @@ const UserProfile = (props: any) => {
     }
      return ( 
      <div>
-      <h3>Repos</h3>
+      <h3>Repos ({userState.user.public_repos})</h3>
           {
           reposState.repos.map( (repo, id) => {
             
@@ -257,10 +265,10 @@ const UserProfile = (props: any) => {
 
     
   let followers = () => {
-    if (followersState.followers.length === 0) {
+    if (followersState.followers.length === 0 && !isLoadingState.isLoading) {
       return (
         <div>
-          <h3>Followers</h3>
+          <h3>Followers ({userState.user.followers})</h3>
           <br/>
           <em>Looks like {login} has no followers. </em>
         </div>
@@ -268,7 +276,7 @@ const UserProfile = (props: any) => {
     }
     return (
       <div>
-        <h3>Followers</h3>
+        <h3>Followers ({userState.user.followers})</h3>
         {
         followersState.followers.map( (follower, id) => {
           return (
@@ -279,11 +287,21 @@ const UserProfile = (props: any) => {
       </div>)
   }
 
+  let userCollections = () => {
+    return (
+      <React.Fragment>
+        {repos()}
+        {followers()}
+        {following()}
+      </React.Fragment>
+    )
+  }
+
   let following = () => {
-    if (followingState.following.length === 0) {
+    if (followingState.following.length === 0 && !isLoadingState.isLoading) {
       return (
         <div>
-          <h3>Following</h3>
+          <h3>Following ({userState.user.following})</h3>
           <br/>
           <em>Hmm, {login} isn't following anyone</em>
         </div>
@@ -291,7 +309,7 @@ const UserProfile = (props: any) => {
     }
     return (
       <div>
-        <h3>Following</h3>
+        <h3>Following ({userState.user.following})</h3>
         {
 
           followingState.following.map( (follow, id) => {
@@ -304,23 +322,41 @@ const UserProfile = (props: any) => {
       </div>
     )
   }
+  let RenderAvatar = () => {
+    if (userState?.user) {
+      return (
+        <React.Fragment>
+        <UserAvatar src={userState.user.avatar_url} alt=""/>
+        <UserLogin>{userState.user.login}</UserLogin>
+        </React.Fragment>
+      )
+    } else {
+      return (
+        <Loader/>
+      )
+    }
+  }
 
   return(
     <React.Fragment>
       <BackButton onClick={goBackHandler}> back </BackButton>
-      { typeof(userState.user.avatar_url) === 'string' ?
-        <UserAvatar src={userState.user.avatar_url} alt=""/> :
-        userState.user.avatar_url  
-       }
-      <UserLogin>{userState.user.login}</UserLogin>
-      { isLoadingState.isLoading ? <Loader/> :
-      <HorizontalSpacingDiv>
-        {repos()}
-        {followers()}
-        {following()}
+      {RenderAvatar()}
+      {isLoadingState.isLoading ? <Loader/> : 
+      <HorizontalSpacingDiv border={true}>
+      { 
+        !userState?.user ? <Loader/> :
+        userCollections()
+      }
       </HorizontalSpacingDiv>}
       {/* <a href={currentUserState?.currentUser?.followers_url}>Followers</a>
       <a href={currentUserState?.currentUser?.following_url}>Following</a> */}
+      <HorizontalSpacingDiv border={false}>
+      <details><summary>Full User JSON Payload </summary> 
+      <pre>
+      {JSON.stringify(userState.user, undefined, 2)}
+      </pre> 
+      </details>
+      </HorizontalSpacingDiv>
     </React.Fragment>
   )
 }
