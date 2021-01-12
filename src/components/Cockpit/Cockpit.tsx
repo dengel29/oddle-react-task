@@ -22,7 +22,6 @@ const Cockpit = (props: any) => {
   
   // local state
   const [queryState, setShownQueryState] = useState({inputQuery:''})
-  // const [fromPaginationState, setFromPaginationState] = useState({fromPagination: false})
   const [isLoadingState, setIsLoadingState] = useState({isLoading: false})
   
   // initialize redux state and utilities
@@ -92,7 +91,6 @@ const Cockpit = (props: any) => {
   let getLastResults = () => {
     triggerSearchHandler(lastTriggeredQuery, pageNum - 1, true)
   }
-
   
   return (
     <React.Fragment>
