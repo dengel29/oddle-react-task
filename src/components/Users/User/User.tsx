@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 
+
 type UserProps = {
   login: string,
   id:number,
   repos_url: string,
   avatar_url: string,
-  gravatar_url?: string,
-  selected: React.MouseEventHandler
+  gravatar_url?: string
 }
 
 // useEffect(() => {
@@ -51,7 +51,7 @@ const NameContainer = styled.div`
 const User = (props: UserProps) => {
   return(
     <UserContainer>
-      <img src={props.avatar_url} alt=""/>
+      <img src={props.avatar_url} alt={`Avatar for ${props.login}`}/>
       <NameContainer>
         <h3>{props.login}</h3>
       </NameContainer>

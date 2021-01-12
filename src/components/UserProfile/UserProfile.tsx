@@ -1,11 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/rootReducer';
 
 import styled from 'styled-components';
 import Loader from '../Loader/Loader';
 
-import {callGithubUserReposAPI, callGithubFollowersAPI, callGithubFollowingAPI, callGithubUserAPI} from '../../utils/githubUserCall';
-import callGithubAPI from '../../utils/callGithubAPI';
+import {callGithubUserReposAPI, 
+        callGithubFollowersAPI, 
+        callGithubFollowingAPI, 
+        callGithubUserAPI} from '../../utils/githubUserCall';
+import {ThemeProps} from '../../types'
+import Navbar from '../Navbar';
 
 type UserFromRouterState = {
   login: string;
@@ -52,31 +58,36 @@ const getFullUser = async (login: string) => {
   return user
 }
 
-interface HSDProps {
+interface HSDProps extends ThemeProps{
   border: boolean
 }
 
 const HorizontalSpacingDiv = styled.div<HSDProps>`
   display:flex;
-  height:40vh;
+  max-height:40vh;
+  overflow-y: scroll;
   flex-direction:row;
   padding-bottom: 0.8em;
   justify-content: space-between;
-  text-align:center;
+  text-align:${props => props.border ? 'center' : 'initial'};
   align-items:top;
   width: 60%;
   margin: 0 auto;
   margin-top: 1em;
+  margin-bottom: 2em;
+  border-radius:4px;
+  background: ${props => props.theme === 'LIGHT' ? '' : '#000000eb'};
+  color: ${props => props.theme === 'LIGHT' ? 'black' : '#ffd2bb'};
+  font-weight: 600;
   border-bottom: ${props => props.border ? '4px dotted darkslateblue' : ''};
   @media (max-width: 600px) {
     flex-direction:column;
-    height: unset;
+    max-height: unset;
     border-bottom: 0px dotted white;
   }
   div {
     height: inherit;
     overflow-y: scroll;
-    text-align:center;
     margin:0 auto;
     padding: 0px 5px 0px 5px;
     margin-bottom: 2em;
@@ -115,16 +126,21 @@ const HorizontalSpacingDiv = styled.div<HSDProps>`
 
 `
 
-const BackButton = styled.button`
+const BackButton = styled.button<ThemeProps>`
+  cursor: pointer;  
   border: none;
   outline: none;
   height: 3em;
   width: 5em;
   border-radius: 5px;
-  background: #483d8b12;
+  color: ${props => props.theme === "LIGHT" ? 'black' : 'white'};
+  background: ${props => props.theme === "LIGHT" ? '' : 'darkslateblue'};
   top: 50%;
   position: sticky;
   font-weight:600;
+  %:focus {
+    border: 3px solid aqua;
+  }
 `
 
 const UserAvatar = styled.img`
@@ -141,18 +157,20 @@ const UserLogin = styled.h2`
 `
 
 
-const UserProfile = (props: any) => {
+const UserProfile  = (props: any) => {
   
   let history = useHistory()
   let {login} = useParams<{login: string}>()
+  const {theme} = useSelector(
+    (state: RootState) => state.usersDisplay
+  )
   let goBackHandler: React.MouseEventHandler;
-  if (props?.history?.state?.user) {
+  if (props?.history?.location?.state) {
        goBackHandler = () => {
          props.history.goBack()
        }
     } else {
       goBackHandler = () => {
-        console.log('did the other go  back handler')
         history.push('/')
       }
     }
@@ -160,7 +178,7 @@ const UserProfile = (props: any) => {
   login: login,
   id: 2,
   node_id: "string",
-  avatar_url: "",
+  avatar_url: props?.history?.location?.state ? props.history.location.state.userAvatarURL : "",
   gravatar_id: "string",
   url: "string",
   html_url: "string",
@@ -212,6 +230,7 @@ const UserProfile = (props: any) => {
   }
 
   useEffect(() => {
+    console.log(props?.history?.location?.state)
     getUserFromStateOrHistory()
   },[])
     
@@ -339,21 +358,25 @@ const UserProfile = (props: any) => {
 
   return(
     <React.Fragment>
-      <BackButton onClick={goBackHandler}> back </BackButton>
+      <Navbar theme={theme}></Navbar>
+      <BackButton 
+        onClick={goBackHandler}
+        theme={theme}> Back </BackButton>
       {RenderAvatar()}
       {isLoadingState.isLoading ? <Loader/> : 
-      <HorizontalSpacingDiv border={true}>
+      <HorizontalSpacingDiv border={true} theme={theme}>
       { 
         !userState?.user ? <Loader/> :
         userCollections()
       }
       </HorizontalSpacingDiv>}
-      {/* <a href={currentUserState?.currentUser?.followers_url}>Followers</a>
-      <a href={currentUserState?.currentUser?.following_url}>Following</a> */}
-      <HorizontalSpacingDiv border={false}>
+
+      <HorizontalSpacingDiv border={false} theme={theme}>
       <details><summary>Full User JSON Payload </summary> 
       <pre>
+        <code>
       {JSON.stringify(userState.user, undefined, 2)}
+        </code>
       </pre> 
       </details>
       </HorizontalSpacingDiv>

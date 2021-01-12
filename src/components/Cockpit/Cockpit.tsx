@@ -12,9 +12,10 @@ import { RootState } from '../../store/rootReducer';
 import usersDisplaySlice, {fetchUsers} from '../../store/usersSlice';
 import {useIsMount} from '../../hooks/useIsMount';
 import debounce from 'lodash.debounce';
+import Navbar from '../Navbar';
 
 
-const Cockpit = () => {
+const Cockpit = (props: any) => {
   
   // local state
   const [queryState, setShownQueryState] = useState({inputQuery:''})
@@ -23,7 +24,7 @@ const Cockpit = () => {
   
   // redux state and utilities
   const dispatch = useDispatch()
-  const {pageNum, displayedUsers, lastTriggeredQuery, totalUsers, navigatedToUser} = useSelector(
+  const {pageNum, displayedUsers, lastTriggeredQuery, totalUsers, navigatedToUser, theme} = useSelector(
     (state: RootState) => state.usersDisplay
   )
 
@@ -44,7 +45,7 @@ const Cockpit = () => {
     dispatch(setLastTriggeredQuery(query))
     dispatch(setCurrentPage(1));
   }
-  const debouncedSearch = debounce(search, 5000)
+  const debouncedSearch = debounce(search, 1250)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debounceOnChange = useCallback(debouncedSearch, [])
 
@@ -63,6 +64,7 @@ const Cockpit = () => {
     }
   const isMount = useIsMount()
   useEffect(() => { 
+    console.log(props.history.location)
     if (isMount && lastTriggeredQuery === '')  {
       return
     } else {
@@ -89,23 +91,29 @@ const Cockpit = () => {
   let getLastResults = () => {
     triggerSearchHandler(lastTriggeredQuery, pageNum - 1, true)
   }
+
+  
   return (
     <React.Fragment>
+      <Navbar theme={theme}></Navbar>
       <Searchbar 
-      value={queryState.inputQuery} 
-      setQuery={setQuery} 
-      triggerSearch={() => triggerSearchHandler(queryState.inputQuery, pageNum, false)}/>
+        theme={theme}
+        value={queryState.inputQuery} 
+        setQuery={setQuery} 
+        triggerSearch={() => triggerSearchHandler(queryState.inputQuery, pageNum, false)}/>
       { isLoadingState.isLoading 
         ? 
           <Loader/>
         : <React.Fragment>
-            <Users users={displayedUsers}/>
+            <Users 
+              theme={theme}
+              users={displayedUsers}/>
             <Pagination 
-            usersOnPageCount={displayedUsers.length}
-            totalUsers={totalUsers}
-            currentPage={pageNum} 
-            nextClicked={getNextResults}
-            backClicked={getLastResults} /> 
+              usersOnPageCount={displayedUsers.length}
+              totalUsers={totalUsers}
+              currentPage={pageNum} 
+              nextClicked={getNextResults}
+              backClicked={getLastResults} /> 
           </React.Fragment> 
       }
     </React.Fragment>

@@ -18,7 +18,8 @@ type CurrentDisplayState = {
   pageNum: number,
   lastTriggeredQuery: string
   totalUsers: number,
-  navigatedToUser: boolean
+  navigatedToUser: boolean,
+  theme: string
 } & DisplayedUsers
 
 let initialState = {
@@ -26,7 +27,8 @@ let initialState = {
   lastTriggeredQuery: '',
   displayedUsers: [],
   totalUsers: -1,
-  navigatedToUser: true
+  navigatedToUser: true,
+  theme: "LIGHT"
 } as CurrentDisplayState
 
 
@@ -49,24 +51,33 @@ const usersDisplaySlice = createSlice({
     },
     setNavigatedToUser(state, action: PayloadAction<boolean>) {
       state.navigatedToUser = action.payload
+    },
+    toggleTheme(state) {
+      state.theme = state.theme === "LIGHT" ? "DARK" : "LIGHT"
     }
   }
 })
+
 
 
 const {setDisplayedUsers, setTotalUsers} = usersDisplaySlice.actions
 
 export const fetchUsers = (query: string, pageNum: number): AppThunk => async dispatch => {
   try {
+    if (query === '') {
+      return
+    }
     const response = await callGithubAPI(query, pageNum)
     const data = await response.json()
     let users = data.items;
+    if (users.length === 0) {
+      throw new Error('No users returned, please search a different user name')
+    }
     let totalCount = data.total_count
     dispatch(setTotalUsers(totalCount))
     dispatch(setDisplayedUsers({displayedUsers: users}))
   } catch(error) {
     console.log(error)
-    alert(JSON.stringify(error))
   }
 }
 

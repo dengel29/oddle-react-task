@@ -1,7 +1,7 @@
 import styled from 'styled-components'
-import React, { useEffect, useState } from 'react';
 import {Link} from 'react-router-dom';
 import User from './User/User'
+import {ThemeProps} from '../../types';
 
 
 type UserType = {
@@ -12,10 +12,11 @@ type UserType = {
   gravatar_url?: string
 }
 type UsersProps = { 
-  users:UserType[]
+  users:UserType[],
+  theme: string
 }
 
-let UsersListContainer = styled.div`
+let UsersListContainer = styled.div<ThemeProps>`
   margin-top:1.6em;
   display:grid;
   grid-template-columns: minmax(min-content, 12em) repeat(auto-fill, 10em);
@@ -23,38 +24,30 @@ let UsersListContainer = styled.div`
   padding: 0em 0.8em 0em 0.8em;
   
   a {
+    background-color: ${props => props.theme === "LIGHT" ? '' : 'darkslateblue'};
     text-decoration:none;
     color:black;
     h3 {
       font-size: 1rem;
       font-weight: 700;
-      color:black;
+      color:${props => props.theme === "LIGHT" ? 'black' : 'white'};
       text-decoration
     }
     &:focus {
-      border: 4px solid aqua;
-      background-color: black;
-      h3 {
-        color: white;
-      }
+      border: 3px solid aqua;
     }
   }
 `
 
 const Users = (props: UsersProps) => {
-  const [selectedUserState, setSelectedUserState] = useState<{selectedUserId: null | number}>({selectedUserId: null})
-  
-  const userSelectedHandler = (id: number) => {
-    setSelectedUserState({selectedUserId: id})
-  }
-  return <UsersListContainer> { 
+  return <UsersListContainer theme={props.theme}> { 
     props.users.map( (user, id) => {
       return (
         <Link 
           to={
             {
             pathname: '/' + user.login,
-            state: {user: user}
+            state: {user: user, userAvatarURL: user.avatar_url}
             }
           } 
           
@@ -65,7 +58,6 @@ const Users = (props: UsersProps) => {
             repos_url={user.repos_url}
             avatar_url={user.avatar_url}
             gravatar_url={user.gravatar_url}
-            selected={() => userSelectedHandler(user.id)}
             ></User>
         </Link>
       )
