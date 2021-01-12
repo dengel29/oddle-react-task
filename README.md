@@ -1,5 +1,7 @@
 # Oddle React Task
 
+The deployed app is deployed on AWS Amplify and can be found [here](https://master.d1da3qvbxoqw2b.amplifyapp.com/).
+
 This project was built as a front-end take-home test for [Oddle](https://oddle.me). Thanks a lot for this opportunity! While you're evaluating this code I want gently to remind you this is my first time writing React; I tried my best to absorb as many best practices and high level concepts as possible, but I know it's not perfect. Either way I appreciate the opportunity and am looking forward to any feedback.
 
 ## How it works
